@@ -1,0 +1,11 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+
+# Cloudflare / tooling
+.wrangler/
+node_modules/
+.env

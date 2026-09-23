@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<!--
+  NOMAD RESONANCE — LANDING PAGE · FINAL DESIGN REFERENCE
+  =======================================================
+  A self-contained, static design reference for the landing page. Open it in a browser to see the
+  intended result; hand it to Claude Code to rebuild inside the Flask app (Jinja templates + Tailwind).
+
+  WHAT TO BUILD FROM THIS FILE
+  - Everything visual is here: tokens (CSS custom properties below), type scale, spacing, components,
+    the 5c logo mark (inline SVG <symbol id="nr-mark">), both colour themes, responsive behaviour and
+    the one piece of JavaScript (the tools carousel).
+  - Content marked PLACEHOLDER (release titles, artwork, extra tools, links) should come from the
+    Flask view. Suggested data shapes:
+        releases = [ {title, artist, year, url, artwork}, ... ]              # newest first; [0] is featured
+        tools    = [ {name, blurb, price, url, cta, image, status}, ... ]    # [0] is featured
+    Music shows releases[0] as the large card and releases[1:4] as the grid below.
+    Plugins & Devices shows tools[0] as the large card and tools[1:] in the horizontal carousel.
+    Hide the grid / carousel when there is nothing to put in it.
+  - Istanbul Records copy is real (from the current site). Gumroad URL, streaming and social links are "#".
+
+  DESIGN RULES (from the Nomad Resonance design system)
+  - Two themes. Sand (default) for the page; Indigo (data-theme="indigo") for plugin cards only.
+  - Fonts: Playfair Display for display/headings, Montserrat for everything else (Google Fonts).
+  - Buttons are pills. Hover = teal glow (--glow-accent), 150 ms. Focus = 2px solid --focus ring, 2px offset.
+  - Text on teal or orange fills is Deep Indigo, never white.
+  - One signal (orange) button per card at most.
+  - Motion is subtle; everything that moves respects prefers-reduced-motion.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nomad Resonance — Dreamy, Ambient, Psychedelic</title>
+<meta name="description" content="Nomad Resonance is a digital music label and audio-tool maker for dreamers: ambient, meditative, hypnotic and psychedelic music, and plugins that bend sound into dreamy ambiences and dubby hypnotism.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'%3E%3Crect width='96' height='96' rx='20' fill='%232e0854'/%3E%3Cg fill='none' stroke='%2300ffc6' stroke-width='6' stroke-linecap='round'%3E%3Cpath d='M8 48 C12 36 16 36 20 48 S28 60 34 48 S42 36 48 48'/%3E%3Cpath d='M48 34A14 14 0 0 1 48 62'/%3E%3Cpath d='M30 26.55A28 28 0 1 1 30 69.45'/%3E%3Cpath d='M21 15.83A42 42 0 1 1 21 80.17'/%3E%3C/g%3E%3Ccircle cx='48' cy='48' r='5.5' fill='%2300ffc6'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,500&display=swap">
+<style>
+/* ───────────────────────── Tokens (from the design system's tokens.json) ───────────────────────── */
+:root, [data-theme="sand"] {
+  /* brand hues, exact from the creative proposal */
+  --electric-teal: #00ffc6;
+  --deep-indigo:   #2e0854;
+  --sandy-beige:   #f5d1a1;
+  --burnt-orange:  #ff6e40;
+  --slate-gray:    #444b59;
+  /* semantic — Sand theme */
+  --surface:        var(--sandy-beige);
+  --surface-raised: #fbebd6;
+  --surface-sunk:   #e9bf8c;
+  --ink:            var(--slate-gray);   /* body text, 6.1:1 on surface */
+  --ink-muted:      #545b6a;             /* captions, labels, 4.7:1 */
+  --ink-display:    var(--deep-indigo);  /* headlines, 11.4:1 */
+  --accent:         var(--electric-teal);/* fills, glows, marks — never text on Sand */
+  --accent-text:    #006048;             /* teal-coloured words on Sand, 5.3:1 */
+  --on-accent:      var(--deep-indigo);
+  --signal:         var(--burnt-orange);
+  --signal-text:    #963512;
+  --on-signal:      var(--deep-indigo);
+  --border:         #957040;             /* meaningful outlines, 3.1:1 */
+  --border-subtle:  #e0b782;             /* decorative hairlines */
+  --focus:          #006048;
+  --glow-accent:      0 0 0 1px #00ffc6, 0 0 16px 0 rgba(0, 255, 198, .55);
+  --glow-accent-soft: 0 0 24px 0 rgba(0, 255, 198, .28);
+  --shadow-raised:    0 2px 8px 0 rgba(68, 75, 89, .18);
+}
+[data-theme="indigo"] {
+  --surface:        var(--deep-indigo);
+  --surface-raised: #3a1266;
+  --surface-sunk:   #1d0536;
+  --ink:            var(--sandy-beige);  /* 11.4:1 */
+  --ink-muted:      #b8a6cc;             /* 7.3:1 */
+  --ink-display:    var(--electric-teal);/* 12.6:1 */
+  --accent-text:    var(--electric-teal);
+  --signal-text:    var(--burnt-orange);
+  --border:         #7e60a2;
+  --border-subtle:  #4a1f78;
+  --focus:          var(--electric-teal);
+  --shadow-raised:  0 4px 16px 0 rgba(0, 0, 0, .45);
+}
+:root {
+  --font-sans:  "Montserrat", "Helvetica Neue", Arial, sans-serif;
+  --font-serif: "Playfair Display", Georgia, "Times New Roman", serif;
+  --space-1: 4px;  --space-2: 8px;   --space-3: 12px;  --space-4: 16px;
+  --space-6: 24px; --space-8: 32px;  --space-12: 48px; --space-16: 64px;
+  --radius-sm: 4px; --radius-md: 8px; --radius-lg: 16px; --radius-pill: 999px;
+  --container: 1024px;
+  --gutter: 24px;
+}
+
+/* ───────────────────────── Base ───────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--surface); color: var(--ink);
+  font-family: var(--font-sans); font-size: 16px; line-height: 26px;
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3, p { margin: 0; }
+a { color: inherit; text-decoration: none; }
+img { display: block; max-width: 100%; }
+::selection { background: var(--accent); color: var(--on-accent); }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: var(--radius-sm); }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+
+/* Type scale */
+.display-xl { font-family: var(--font-serif); font-weight: 700; font-size: 64px; line-height: .95; letter-spacing: -.01em; color: var(--ink-display); }
+.display-lg { font-family: var(--font-serif); font-weight: 600; font-size: 40px; line-height: 1.1; color: var(--ink-display); }
+.heading    { font-family: var(--font-serif); font-weight: 600; font-size: 28px; line-height: 1.2; color: var(--ink-display); }
+.title      { font-family: var(--font-serif); font-weight: 600; font-size: 20px; line-height: 28px; color: var(--ink-display); }
+.body-sm    { font-size: 14px; line-height: 22px; }
+.label      { font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+.muted      { color: var(--ink-muted); }
+.eyebrow    { color: var(--accent-text); }
+@media (min-width: 768px) { .display-xl.hero-name { font-size: 88px; } }
+
+/* ───────────────────────── Page atmosphere: haze + grain instead of a photo ───────────────────────── */
+.atmosphere {
+  position: relative; overflow-x: clip; min-height: 100vh;
+  background:
+    radial-gradient(55% 45% at 88% 8%,  rgba(0, 255, 198, .20), transparent 65%),
+    radial-gradient(45% 40% at 6% 92%,  rgba(255, 110, 64, .16), transparent 65%),
+    radial-gradient(70% 55% at 50% 55%, rgba(46, 8, 84, .07),    transparent 70%),
+    var(--surface);
+  background-repeat: no-repeat;
+}
+.atmosphere::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .35;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.27 0 0 0 0 0.29 0 0 0 0 0.35 0 0 0 0.18 0'/></filter><rect width='160' height='160' filter='url(%23n)'/></svg>");
+}
+.atmosphere > * { position: relative; }
+
+/* Layout */
+.container { max-width: var(--container); margin: 0 auto; padding: 0 var(--gutter); }
+.section { padding-top: var(--space-16); padding-bottom: var(--space-16); }
+@media (min-width: 768px) { .section { padding-top: 96px; padding-bottom: 96px; } }
+.rule { max-width: calc(var(--container) - 2 * var(--gutter)); margin: 0 auto; border: 0; border-top: 1px solid var(--border-subtle); }
+@media (max-width: 1071px) { .rule { margin: 0 var(--gutter); } }
+.split { display: grid; gap: 40px; align-items: center; }
+@media (min-width: 768px) { .split { grid-template-columns: 1fr 1fr; gap: 64px; } }
+.split .lede { margin-top: var(--space-6); max-width: 28rem; }
+.split h2 { margin-top: var(--space-3); }
+
+/* ───────────────────────── Components ───────────────────────── */
+/* Button — pill, uppercase label, teal glow on hover */
+.btn {
+  display: inline-flex; align-items: center; gap: var(--space-2);
+  padding: var(--space-3) var(--space-6); border-radius: var(--radius-pill); border: 1px solid transparent;
+  font: 600 12px/16px var(--font-sans); letter-spacing: .08em; text-transform: uppercase;
+  cursor: pointer; transition: box-shadow 150ms ease-out;
+}
+.btn:hover { box-shadow: var(--glow-accent); }
+.btn:focus-visible { outline-offset: 3px; border-radius: var(--radius-pill); }
+.btn-primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.btn-signal  { background: var(--signal); border-color: var(--signal); color: var(--on-signal); }
+.btn-icon {
+  width: 40px; height: 40px; padding: 0; justify-content: center;
+  background: transparent; border-color: var(--border); color: var(--ink);
+}
+.btn-icon[disabled] { opacity: .35; cursor: default; box-shadow: none; }
+.btn-icon svg { width: 16px; height: 16px; }
+
+/* Text link — underline that warms to teal */
+.link {
+  color: var(--accent-text); text-decoration: underline; text-decoration-color: var(--border);
+  text-underline-offset: 4px; transition: text-decoration-color 150ms ease-out;
+}
+.link:hover { text-decoration-color: var(--accent); }
+
+/* Pill tag on images */
+.tag {
+  position: absolute; left: var(--space-4); top: var(--space-4);
+  padding: var(--space-1) var(--space-3); border-radius: var(--radius-pill);
+  background: var(--surface-raised); color: var(--ink-muted);
+}
+
+/* Artwork placeholder (swap for <img class="art-img">) */
+.art {
+  position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, var(--surface-sunk), var(--surface) 55%, var(--surface-raised));
+}
+.art .art-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.art svg.placeholder { width: 40%; height: 40%; color: var(--accent-text); opacity: .8; }
+
+/* Release card (Sand) */
+.release-card { background: var(--surface-raised); border-radius: var(--radius-lg); padding: var(--space-6); box-shadow: var(--shadow-raised); }
+@media (min-width: 768px) { .release-card { padding: var(--space-8); } }
+.release-card .art { aspect-ratio: 1; }
+.card-foot { margin-top: 20px; display: flex; align-items: flex-end; justify-content: space-between; gap: var(--space-4); }
+
+/* Release tile (grid below the featured release) */
+.release-grid { list-style: none; margin: var(--space-6) 0 0; padding: 0; display: grid; gap: var(--space-6); }
+@media (min-width: 640px) { .release-grid { grid-template-columns: repeat(3, 1fr); } }
+.release-tile .art { aspect-ratio: 1; transition: box-shadow 150ms ease-out; }
+.release-tile:hover .art { box-shadow: var(--glow-accent); }
+.release-tile .title { margin-top: var(--space-3); }
+
+/* Row header above grids / carousels */
+.row-head { margin-top: 56px; display: flex; align-items: flex-end; justify-content: space-between; gap: var(--space-4); flex-wrap: wrap; }
+.row-head .controls { display: flex; align-items: center; gap: var(--space-3); }
+
+/* Tool card (Indigo theme — looks like the plugin itself) */
+.tool-card {
+  position: relative; overflow: hidden; display: flex; flex-direction: column;
+  background: var(--surface); color: var(--ink);
+  border-radius: var(--radius-lg); padding: var(--space-6); box-shadow: var(--glow-accent-soft);
+}
+.tool-card > * { position: relative; }
+.tool-card .corner-ripple { position: absolute; right: -110px; bottom: -110px; width: 280px; height: 280px; color: var(--accent); opacity: .22; pointer-events: none; }
+.tool-card .art { aspect-ratio: 3 / 2; background: linear-gradient(135deg, var(--surface-sunk), var(--surface-raised)); }
+.tool-card .art svg.placeholder { color: var(--accent); }
+.tool-card h3 { margin-top: var(--space-6); }
+.tool-card .blurb { margin-top: var(--space-3); }
+.tool-card .buy { margin-top: auto; padding-top: var(--space-6); display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4); }
+.tool-card--featured { padding: var(--space-6); }
+@media (min-width: 768px) { .tool-card--featured { padding: var(--space-8); } }
+
+/* Carousel — native horizontal scroll with snap; buttons page by one card */
+.carousel { margin-top: var(--space-6); position: relative; }
+.carousel-track {
+  list-style: none; margin: 0; padding: var(--space-4) var(--gutter) var(--space-6);
+  margin-left: calc(-1 * var(--gutter)); margin-right: calc(-1 * var(--gutter));
+  display: grid; grid-auto-flow: column; grid-auto-columns: min(82%, 300px); gap: var(--space-6);
+  overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scroll-padding-inline: var(--gutter);
+  scrollbar-width: none;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 var(--gutter), #000 calc(100% - var(--gutter)), transparent 100%);
+          mask-image: linear-gradient(90deg, transparent 0, #000 var(--gutter), #000 calc(100% - var(--gutter)), transparent 100%);
+}
+.carousel-track::-webkit-scrollbar { display: none; }
+.carousel-track > li { scroll-snap-align: start; display: flex; }
+.carousel-track .tool-card { width: 100%; }
+.carousel-track .tool-card h3 { font-size: 22px; }
+
+/* Hero ripple (decorative, slow breathe) */
+.ripple { position: absolute; top: -64px; right: -192px; width: 640px; height: 640px; opacity: .3; pointer-events: none; animation: breathe 14s ease-in-out infinite; transform-origin: center; }
+@media (min-width: 768px) { .ripple { right: -128px; opacity: .6; } }
+@keyframes breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.035); } }
+
+/* Form */
+.subscribe { margin-top: var(--space-8); display: flex; flex-direction: column; gap: var(--space-3); max-width: 28rem; }
+@media (min-width: 640px) { .subscribe { flex-direction: row; } }
+.input {
+  width: 100%; padding: var(--space-3) 20px; border-radius: var(--radius-pill);
+  border: 1px solid var(--border); background: var(--surface-raised); color: var(--ink);
+  font: 400 16px/24px var(--font-sans);
+}
+.input::placeholder { color: var(--ink-muted); }
+.input:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: var(--radius-pill); }
+
+/* Header / footer */
+.site-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-3) var(--space-8); padding-top: 28px; padding-bottom: 28px; }
+.lockup { display: inline-flex; align-items: center; gap: var(--space-3); color: var(--ink-display); }
+.lockup svg { width: 36px; height: 36px; flex: none; }
+.lockup span { font: 700 21px/1 var(--font-serif); }
+.nav { display: flex; flex-wrap: wrap; gap: 20px 28px; }
+.nav a { color: var(--ink-muted); transition: color 150ms ease-out; }
+.nav a:hover { color: var(--accent-text); }
+.site-footer { padding-top: var(--space-6); padding-bottom: 40px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-4); }
+.site-footer .lockup svg { width: 28px; height: 28px; }
+.site-footer .lockup span { font-size: 18px; }
+.site-footer nav { display: flex; gap: var(--space-6); }
+.site-footer nav a:hover { color: var(--accent-text); }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .ripple { animation: none; }
+  * { transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- Logo 5c · wave into ripple, outer rings extended 40°. Single ink (currentColor). 96 × 96 grid, stroke 4.5. -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="nr-mark" viewBox="0 0 96 96">
+    <g fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M6 48 L6.9 46 L7.8 44.2 L8.6 42.4 L9.5 40.9 L10.4 39.7 L11.2 38.8 L12.1 38.2 L13 38 L13.9 38.2 L14.8 38.8 L15.6 39.7 L16.5 40.9 L17.4 42.4 L18.2 44.2 L19.1 46 L20 48 L20.9 50 L21.8 51.8 L22.6 53.6 L23.5 55.1 L24.4 56.3 L25.2 57.2 L26.1 57.8 L27 58 L27.9 57.8 L28.8 57.2 L29.6 56.3 L30.5 55.1 L31.4 53.6 L32.2 51.8 L33.1 50 L34 48 L34.9 46 L35.8 44.2 L36.6 42.4 L37.5 40.9 L38.4 39.7 L39.2 38.8 L40.1 38.2 L41 38 L41.9 38.2 L42.8 38.8 L43.6 39.7 L44.5 40.9 L45.4 42.4 L46.2 44.2 L47.1 46 L48 48"/>
+      <path d="M48 34 A14 14 0 0 1 48 62"/>
+      <path d="M30 26.55 A28 28 0 1 1 30 69.45"/>
+      <path d="M21 15.83 A42 42 0 1 1 21 80.17"/>
+    </g>
+    <circle cx="48" cy="48" r="4.5" fill="currentColor"/>
+  </symbol>
+  <!-- Placeholder artwork motif: concentric rings -->
+  <symbol id="nr-rings" viewBox="0 0 160 160">
+    <g fill="none" stroke="currentColor" stroke-width="1.5">
+      <circle cx="80" cy="80" r="14"/><circle cx="80" cy="80" r="32"/><circle cx="80" cy="80" r="50"/><circle cx="80" cy="80" r="68"/>
+    </g>
+  </symbol>
+</svg>
+
+<div class="atmosphere">
+
+  <!-- ═════════════ Header ═════════════ -->
+  <header class="container site-header">
+    <a href="#top" class="lockup" aria-label="Nomad Resonance, home">
+      <svg aria-hidden="true"><use href="#nr-mark"/></svg>
+      <span>Nomad Resonance</span>
+    </a>
+    <nav class="nav label" aria-label="Main">
+      <a href="#music">Music</a>
+      <a href="#plugins">Plugins &amp; Devices</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </header>
+
+  <!-- ═════════════ Hero ═════════════ -->
+  <section id="top" class="container" style="position:relative; padding-top:40px; padding-bottom:64px;">
+    <svg class="ripple" viewBox="0 0 640 640" aria-hidden="true">
+      <g fill="none" stroke="var(--accent)" stroke-width="1.25">
+        <circle cx="320" cy="320" r="40"/><circle cx="320" cy="320" r="88"/><circle cx="320" cy="320" r="136"/>
+        <circle cx="320" cy="320" r="184"/><circle cx="320" cy="320" r="232"/><circle cx="320" cy="320" r="280"/>
+      </g>
+      <g fill="none" stroke="var(--signal)" stroke-width="1" opacity=".7">
+        <circle cx="320" cy="320" r="64"/><circle cx="320" cy="320" r="160"/><circle cx="320" cy="320" r="256"/>
+      </g>
+      <circle cx="320" cy="320" r="6" fill="var(--accent)"/>
+    </svg>
+    <div style="position:relative; max-width:42rem; padding-top:clamp(0px, 4vw, 40px);">
+      <h1 class="display-xl hero-name">Nomad<br>Resonance</h1>
+      <p class="heading muted" style="margin-top:20px; font-style:italic; font-weight:500; color:var(--ink-muted);">Dreamy, ambient, psychedelic.</p>
+      <p style="margin-top:40px; max-width:32rem;">
+        A music label and audio-tool maker for dreamers. The music is ambient, meditative, hypnotic or sharply
+        psychedelic; the tools bend and spread sound into dreamy ambiences and dubby hypnotism. Born at the
+        crossroads of immigrant experience and nomadic artistry, Nomad Resonance connects the mystical and the
+        modern — a pilgrimage where tradition meets technology.
+      </p>
+      <div style="margin-top:40px; display:flex; flex-wrap:wrap; align-items:center; gap:16px;">
+        <a href="#music" class="btn btn-primary">Listen</a>
+        <a href="#plugins" class="link label">See the plugins</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════════ Music: description left, featured release right, three more below ═════════════ -->
+  <section id="music" class="container section">
+    <div class="split">
+      <div>
+        <p class="label eyebrow">Music</p>
+        <h2 class="display-lg">Sound for the long road</h2>
+        <p class="lede">
+          Releases arrive slowly and stay a while: long-form ambient for the night bus, meditative loops for the
+          morning, dub that drifts and psychedelia that cuts.
+        </p>
+        <div style="margin-top:32px; display:flex; flex-wrap:wrap; align-items:center; gap:16px;">
+          <a href="#" class="btn btn-primary">Listen on Bandcamp</a>
+          <a href="#" class="link label">Spotify</a>
+          <a href="#" class="link label">SoundCloud</a>
+        </div>
+      </div>
+
+      <!-- releases[0] — PLACEHOLDER -->
+      <article class="release-card">
+        <div class="art">
+          <!-- <img class="art-img" src="…" alt=""> -->
+          <svg class="placeholder" aria-hidden="true"><use href="#nr-rings"/></svg>
+          <span class="tag label">Latest release</span>
+        </div>
+        <div class="card-foot">
+          <div>
+            <h3 class="heading">Release title</h3>
+            <p class="body-sm muted" style="margin-top:4px;">Nomad Resonance · 2026</p>
+          </div>
+          <a href="#" class="link label">Play</a>
+        </div>
+      </article>
+    </div>
+
+    <div class="row-head">
+      <p class="label muted">More from the label</p>
+      <a href="#" class="link label">All releases</a>
+    </div>
+    <!-- releases[1:4] — PLACEHOLDER -->
+    <ul class="release-grid">
+      <li><a href="#" class="release-tile" style="display:block;">
+        <div class="art"><svg class="placeholder" aria-hidden="true"><use href="#nr-rings"/></svg></div>
+        <p class="title">Release title</p><p class="body-sm muted">Nomad Resonance · 2025</p>
+      </a></li>
+      <li><a href="#" class="release-tile" style="display:block;">
+        <div class="art"><svg class="placeholder" aria-hidden="true"><use href="#nr-rings"/></svg></div>
+        <p class="title">Release title</p><p class="body-sm muted">Guest artist · 2025</p>
+      </a></li>
+      <li><a href="#" class="release-tile" style="display:block;">
+        <div class="art"><svg class="placeholder" aria-hidden="true"><use href="#nr-rings"/></svg></div>
+        <p class="title">Release title</p><p class="body-sm muted">Nomad Resonance · 2024</p>
+      </a></li>
+    </ul>
+  </section>
+
+  <hr class="rule">
+
+  <!-- ═════════════ Plugins & Devices: featured tool left, description right, carousel of the rest below ═════════════ -->
+  <section id="plugins" class="container section">
+    <div class="split">
+      <!-- tools[0] — real copy; Gumroad link and image to fill in -->
+      <article class="tool-card tool-card--featured" data-theme="indigo" style="order:2;">
+        <svg class="corner-ripple" viewBox="0 0 280 280" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1"><circle cx="140" cy="140" r="40"/><circle cx="140" cy="140" r="80"/><circle cx="140" cy="140" r="120"/></g></svg>
+        <div class="art">
+          <!-- <img class="art-img" src="…/istanbul-records.jpg" alt=""> -->
+          <svg class="placeholder" aria-hidden="true"><use href="#nr-rings"/></svg>
+          <span class="tag label">Featured</span>
+        </div>
+        <h3 class="heading">Istanbul Records</h3>
+        <p class="blurb body-sm">
+          A unique lo-fi plugin that begins as an emulation of early Turkish recordings. Dial everything back
+          apart from Noise and Wobble for those old vibes, then bring up the other controls for dubby craziness.
+          Works as a track effect and on the master bus.
+        </p>
+        <div class="buy">
+          <a href="#" class="btn btn-signal">Get it on Gumroad</a>
+          <span class="body-sm muted">Ten euros</span>
+        </div>
+      </article>
+
+      <div style="order:1;" class="tools-intro">
+        <p class="label eyebrow">Plugins &amp; Devices</p>
+        <h2 class="display-lg">Tools that wander</h2>
+        <p class="lede">
+          Audio tools that bend and spread sound: delays that drift off the grid, diffusion that turns a note
+          into weather, and feedback paths built for dubby hypnotism.
+        </p>
+        <p class="lede muted" style="margin-top:24px;">More devices are in the workshop; the newsletter hears first.</p>
+      </div>
+    </div>
+
+    <div class="row-head">
+      <p class="label muted" id="more-tools">More plugins &amp; devices</p>
+      <div class="controls">
+        <a href="#" class="link label">All plugins &amp; devices</a>
+        <button class="btn btn-icon" type="button" data-carousel-prev aria-label="Previous tools" aria-controls="tools-track">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3 5 8l5 5"/></svg>
+        </button>
+        <button class="btn btn-icon" type="button" data-carousel-next aria-label="Next tools" aria-controls="tools-track">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 3 5 5-5 5"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- tools[1:] — PLACEHOLDER -->
+    <div class="carousel" role="region" aria-labelledby="more-tools">
+      <ul class="carousel-track" id="tools-track" tabindex="0">
+        <li><article class="tool-card" data-theme="indigo">
+          <div class="art"><svg class="placeholder" aria-hidden="true"><use href="#nr-rings"/></svg></div>
+          <h3 class="heading">Plugin name</h3>
+          <p class="blurb body-sm">One or two sentences on what it does to sound, in the brand's voice.</p>
+          <div class="buy"><a href="#" class="btn btn-signal">Get it on Gumroad</a><span class="body-sm muted">Price</span></div>
+        </article></li>
+        <li><article class="tool-card" data-theme="indigo">
+          <div class="art"><svg class="placeholder" aria-hidden="true"><use href="#nr-rings"/></svg></div>
+          <h3 class="heading">Plugin name</h3>
+          <p class="blurb body-sm">One or two sentences on what it does to sound, in the brand's voice.</p>
+          <div class="buy"><a href="#" class="btn btn-signal">Get it on Gumroad</a><span class="body-sm muted">Price</span></div>
+        </article></li>
+        <li><article class="tool-card" data-theme="indigo">
+          <div class="art"><svg class="placeholder" aria-hidden="true"><use href="#nr-rings"/></svg><span class="tag label">Coming soon</span></div>
+          <h3 class="heading">Device name</h3>
+          <p class="blurb body-sm">A tool still in the workshop: no buy button until it has a link.</p>
+          <div class="buy"><a href="#contact" class="link label">Get notified</a></div>
+        </article></li>
+        <li><article class="tool-card" data-theme="indigo">
+          <div class="art"><svg class="placeholder" aria-hidden="true"><use href="#nr-rings"/></svg></div>
+          <h3 class="heading">Plugin name</h3>
+          <p class="blurb body-sm">One or two sentences on what it does to sound, in the brand's voice.</p>
+          <div class="buy"><a href="#" class="btn btn-signal">Get it on Gumroad</a><span class="body-sm muted">Price</span></div>
+        </article></li>
+        <li><article class="tool-card" data-theme="indigo">
+          <div class="art"><svg class="placeholder" aria-hidden="true"><use href="#nr-rings"/></svg><span class="tag label">Free</span></div>
+          <h3 class="heading">Device name</h3>
+          <p class="blurb body-sm">One or two sentences on what it does to sound, in the brand's voice.</p>
+          <div class="buy"><a href="#" class="btn btn-signal">Download</a><span class="body-sm muted">Max for Live</span></div>
+        </article></li>
+      </ul>
+    </div>
+  </section>
+
+  <hr class="rule">
+
+  <!-- ═════════════ Contact / newsletter ═════════════ -->
+  <section id="contact" class="container section">
+    <div style="max-width:42rem;">
+      <p class="label eyebrow">Contact</p>
+      <h2 class="display-lg" style="margin-top:12px;">Travel with us</h2>
+      <p style="margin-top:24px;">A short letter when something is released, and nothing in between.</p>
+      <form class="subscribe" action="#" method="post">
+        <label class="sr-only" for="email">Email address</label>
+        <input class="input" id="email" name="email" type="email" required placeholder="you@somewhere.earth" autocomplete="email">
+        <button class="btn btn-primary" type="submit" style="flex:none;">Subscribe</button>
+      </form>
+      <p class="body-sm muted" style="margin-top:32px;">Or write to <a class="link" href="mailto:hello@nomadresonance.com">hello@nomadresonance.com</a>.</p>
+    </div>
+  </section>
+
+  <!-- ═════════════ Footer ═════════════ -->
+  <footer class="container site-footer body-sm muted">
+    <a href="#top" class="lockup" aria-label="Nomad Resonance, back to top">
+      <svg aria-hidden="true"><use href="#nr-mark"/></svg>
+      <span>Nomad Resonance</span>
+    </a>
+    <nav aria-label="Social">
+      <a href="#">Instagram</a><a href="#">Bandcamp</a><a href="#">YouTube</a>
+    </nav>
+    <p>© 2026 Nomad Resonance</p>
+  </footer>
+
+</div>
+
+<script>
+/* Tools carousel: buttons page by one card; they disable at either end. Native scroll/swipe/keys still work. */
+(function () {
+  const track = document.getElementById('tools-track');
+  if (!track) return;
+  const prev = document.querySelector('[data-carousel-prev]');
+  const next = document.querySelector('[data-carousel-next]');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const step = () => {
+    const item = track.querySelector('li');
+    const gap = parseFloat(getComputedStyle(track).columnGap) || 0;
+    return item ? item.getBoundingClientRect().width + gap : track.clientWidth;
+  };
+  const update = () => {
+    const max = track.scrollWidth - track.clientWidth - 1;
+    prev.disabled = track.scrollLeft <= 1;
+    next.disabled = track.scrollLeft >= max;
+    const hide = track.scrollWidth <= track.clientWidth + 1;   // everything fits: hide the arrows
+    prev.hidden = next.hidden = hide;
+  };
+  prev.addEventListener('click', () => track.scrollBy({ left: -step(), behavior: reduce ? 'auto' : 'smooth' }));
+  next.addEventListener('click', () => track.scrollBy({ left:  step(), behavior: reduce ? 'auto' : 'smooth' }));
+  track.addEventListener('scroll', update, { passive: true });
+  window.addEventListener('resize', update);
+  update();
+})();
+</script>
+</body>
+</html>
