@@ -443,11 +443,28 @@ img { display: block; max-width: 100%; }
   <!-- ═════════════ Plugins & Devices: featured tool left, description right, carousel of the rest below ═════════════ -->
   <section id="plugins" class="container section">
     <div class="split">
-      <!-- Featured tool (always shown) — Gumroad link and image to fill in -->
+      <!-- Featured tool (always shown). While a tool is in development it has no buy area;
+           once it is on sale, add after the blurb:
+             <div class="buy"><a href="https://…" class="btn btn-signal">Get it on Gumroad</a><span class="body-sm muted">Price</span></div> -->
       <article class="tool-card tool-card--featured" data-theme="indigo" style="order:2;">
         <svg class="corner-ripple" viewBox="0 0 280 280" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1"><circle cx="140" cy="140" r="40"/><circle cx="140" cy="140" r="80"/><circle cx="140" cy="140" r="120"/></g></svg>
         <div class="art">
-          <!-- <img class="art-img" src="images/istanbul-records.jpg" alt=""> -->
+          <img class="art-img" src="images/nomad-delay.webp" alt="Nomad Delay: two tape reels, echoes rippling outward, three control knobs.">
+          <span class="tag label">Coming soon</span>
+        </div>
+        <h3 class="heading">Nomad Delay</h3>
+        <p class="blurb body-sm">
+          A delay still in the workshop, built around the drift and warmth of old tape machines: echoes that
+          wander off the grid and feedback that blooms into dub.
+        </p>
+      </article>
+
+      <!-- HIDDEN until Istanbul Records is online. To reinstate, delete this comment's first and last lines
+           and put it in place of the Nomad Delay card above (or move it into the carousel).
+      <article class="tool-card tool-card--featured" data-theme="indigo" style="order:2;">
+        <svg class="corner-ripple" viewBox="0 0 280 280" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1"><circle cx="140" cy="140" r="40"/><circle cx="140" cy="140" r="80"/><circle cx="140" cy="140" r="120"/></g></svg>
+        <div class="art">
+          <img class="art-img" src="images/istanbul-records.jpg" alt="">
           <svg class="placeholder" aria-hidden="true"><use href="#nr-rings"/></svg>
           <span class="tag label">Featured</span>
         </div>
@@ -462,6 +479,7 @@ img { display: block; max-width: 100%; }
           <span class="body-sm muted">Ten euros</span>
         </div>
       </article>
+      -->
 
       <div style="order:1;">
         <p class="label eyebrow">Plugins &amp; Devices</p>
@@ -511,6 +529,8 @@ img { display: block; max-width: 100%; }
           </article></li>
           -->
 
+          <!-- HIDDEN placeholder cards. With no cards, the whole carousel stays hidden.
+               To bring the carousel back, add a real card above this comment (or delete this comment's first and last lines).
           <li><article class="tool-card" data-theme="indigo">
             <div class="art"><svg class="placeholder" aria-hidden="true"><use href="#nr-rings"/></svg></div>
             <h3 class="heading">Plugin name</h3>
@@ -541,6 +561,7 @@ img { display: block; max-width: 100%; }
             <p class="blurb body-sm">One or two sentences on what it does to sound, in the brand's voice.</p>
             <div class="buy"><a href="#" class="btn btn-signal">Download</a><span class="body-sm muted">Max for Live</span></div>
           </article></li>
+          -->
         </ul>
       </div>
     </div>
